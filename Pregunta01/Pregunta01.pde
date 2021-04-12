@@ -44,13 +44,16 @@
 import ddf.minim.*;
 import ddf.minim.ugens.*;
 
-//Definimos los objetos
+//Definición de variables
 Minim minim;
 Oscil fixedWaveL;
 Oscil variableWaveR;
 AudioOutput out;
 Pan panL;
 Pan panR;
+float newPhase;
+float newFrequency;
+private PFont font;
 
 
 //========================================================================================================
@@ -59,6 +62,8 @@ Pan panR;
 void setup() {
 
   size(1000, 600);
+  font = createFont("Poppins-Regular.ttf", 13);
+  textFont(font);
 
   //Inicializo motor Minim
   minim = new Minim(this);
@@ -110,21 +115,29 @@ void draw() {
 
   //Texto y datos delainterfaz
   fill(200);
-  text("Amp", 10, height-10 );
-  text("Amp", 10, height-25 );
+  text("Creado por: Pablo Pérez Sineiro, email: pperezsi@uoc.edu", 10, height-50 );
+  text("El movimiento horizontal del ratón controla la fase y el vertical controla la frecuencia de la onda superior.", 10, height-30);
+  text("También se puede ajustar la velocidad con las teclas '+' para subir y '-' para bajar. "+
+    "En caso de querer reiniciar los valores por defecto con la tecla '.'", 10, height-15);
 
   //Dibujar eje de coordenadas
-  stroke(255,75);
+  stroke(255, 75);
   strokeWeight(1);
   line(500, 600, 500, 0);
   line(0, 300, 1000, 300);
 
+  //Texto canal izquierdo - variable
+  text("Canal izquierdo:", 10, 55);
+  text("Amplitud:" + variableWaveR.amplitude.getLastValue(), 150, 55 );
+  text("Frecuencia:"  + variableWaveR.frequency.getLastValue(), 300, 55 );
+  text("Fase:" + variableWaveR.phase.getLastValue(), 505, 55 );
 
-  //Se muestra informaciónsobre el nombre y
-  //elfuncionamiento del programa
-  text("Canal izquierdo", 10, 55);
+  //Texto canal derecho - fijo
   text("Mixto: ", 10, 265);
-  text("Derecho: ", 10, 450);
+  text("Canal derecho: ", 10, 450);
+  text("Amplitud:" + fixedWaveL.amplitude.getLastValue(), 150, 450 );
+  text("Frecuencia:"  + fixedWaveL.frequency.getLastValue(), 300, 450 );
+  text("Fase:" + fixedWaveL.phase.getLastValue(), 505, 450 );
 }
 
 //========================================================================================================
@@ -135,17 +148,19 @@ void mouseMoved() {
   // Cada vez que el ratón se mueva se ejecuta esta función
   //Con el movimiento del ratón se modifican los parámetros de amplitud
   //y frecuencia de la onda variable (variableWaveR).
-  
+
   //Se emplea el método map() de processing para controlar el rango de valores
   //map(value, start1, stop1, start2, stop2)
 
   //En el eje vertical(Y) se modifica la amplitu
-  float amplitudeMouse = map(mouseY, 0, height, 1, 0);
-  variableWaveR.setAmplitude(amplitudeMouse);
+  //float amplitudeMouse = map(mouseY, 0, height, 1, 0);
+  //variableWaveR.setAmplitude(amplitudeMouse);
+  newPhase = map (mouseX, 0, width, -0.5, 0.5);
+  variableWaveR.setPhase(newPhase);
 
   //En el eje horizontal(X) se modifica la frecuencia
-  float frequencyMouse = map(mouseX, 0, width, 150, 1000);
-  variableWaveR.setFrequency(frequencyMouse);
+  newFrequency = map(mouseY, 0, height, 430, 450);
+  variableWaveR.setFrequency(newFrequency);
 }
 
 //========================================================================================================
@@ -158,11 +173,25 @@ void keyPressed() {
   // forma de onda del oscilador
   switch(key) {
   case '+':
-    //variableWaveR.setfrequency += 1.0;
+    //Al pulsar la tecla - se sube 1Hz la frecuencia de las dos ondas
+    newFrequency = fixedWaveL.frequency.getLastValue()+ 1;
+    variableWaveR.setFrequency(newFrequency);
+    fixedWaveL.setFrequency(newFrequency);
     break;
+
   case '-':
-    //variableWaveR.setWaveform(Waves.TRIANGLE);
+    //Al pulsar la tecla - se baja 1Hz la frecuencia de las dos ondas
+    newFrequency = fixedWaveL.frequency.getLastValue()- 1;
+    variableWaveR.setFrequency(newFrequency);
+    fixedWaveL.setFrequency(newFrequency);
     break;
+
+  case '.':
+    //Al pulsar la tecla - se baja 1Hz la frecuencia de las dos ondas
+    variableWaveR.setFrequency(440);
+    fixedWaveL.setFrequency(440);
+    break;
+
   default:
     break;
   }
