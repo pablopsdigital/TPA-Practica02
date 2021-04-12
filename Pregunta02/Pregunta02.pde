@@ -57,7 +57,9 @@ Minim minim;
 Oscil wave;
 FFT fft;
 AudioOutput out;
-float freqOriginal;
+MoogFilter moogFilter;
+boolean moogFilterIsActive;
+private PFont font;
 
 
 //========================================================================================================
@@ -65,24 +67,30 @@ float freqOriginal;
 //========================================================================================================
 void setup() {
 
-  size(1000, 600, P3D);
+  size(512, 500, P3D);
+  font = createFont("Poppins-Regular.ttf", 13);
+  textFont(font);
 
   //Crear motor minim
   minim = new Minim(this);
 
   //Crear onda
-  freqOriginal = 1000.0f;
-  wave = new Oscil(freqOriginal, 0.5f, Waves.SINE);
+  wave = new Oscil(1200.0, 0.5f, Waves.SINE);
 
 
   // Construimos el objeto fft
   fft = new FFT(1024, 44100);
+
+  //Creación filtro paso bajo "MoogFilter.Type,LP" a traves de un filtro moog
+  moogFilter = new MoogFilter(1200, 0.5, MoogFilter.Type.LP);
 
   //Inicializar AudioOutput
   out = minim.getLineOut();
 
   //Enviar a la salida
   wave.patch(out);
+  wave.patch(moogFilter);
+  moogFilter.patch(out);
 }
 
 
@@ -105,8 +113,8 @@ void draw() {
 
   //Añadir textos
   textAlign(LEFT);
-  text("Valor Frecuencia: " + wave.frequency.getLastValue() + " Hz", width-250, height-30);
-  text("Valor Amplitud: " + wave.amplitude.getLastValue(), width-250, height-10);
+  text("Valor Frecuencia: " + wave.frequency.getLastValue() + " Hz", width-250, height-40);
+  text("Valor Amplitud: " + wave.amplitude.getLastValue(), width-250, height-20);
 
 
   //Añadir objte FFT para el análisis espectral
@@ -132,7 +140,7 @@ void mouseMoved() {
   wave.setAmplitude(amplitudeMouse);
 
   //En el eje horizontal(X) se modifica la frecuencia
-  float frequencyMouse = map(mouseX, 0, width, 150, 1000);
+  float frequencyMouse = map(mouseX, 0, width, 110.0, 2000.0);
   wave.setFrequency(frequencyMouse);
 }
 
@@ -160,18 +168,20 @@ void keyPressed() {
     break;
 
   case '+'://+1Hz
-    wave.setFrequency( freqOriginal+1 );
+    wave.setFrequency( wave.frequency.getLastValue()+1 );
     break;
 
   case '-'://-1Hz
-    wave.setFrequency( freqOriginal-1 );
+    wave.setFrequency( wave.frequency.getLastValue()-1 );
     break;
 
-  case 'd'://Activar-Desactivar la salida
-    if ( !out.isMuted()) {
-      out.mute();
+  case 'd'://Activar-Desactivar la salida filtro moog
+    if ( moogFilterIsActive==true) {
+      moogFilter.unpatch(out);
+      moogFilterIsActive=false;
     } else {
-      out.unmute();
+      moogFilter.patch(out);
+      moogFilterIsActive=true;
     }
     break;
 
