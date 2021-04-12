@@ -57,6 +57,8 @@ AudioSample sampleBSol;
 AudioSample sampleNLa;
 AudioSample sampleMSi;
 
+private PFont font;
+
 
 //========================================================================================================
 //Función de inicialización
@@ -64,33 +66,33 @@ AudioSample sampleMSi;
 void setup() {
 
   size(1000, 600, P3D);
+  font = createFont("Poppins-Regular.ttf", 13);
+  textFont(font);
   minim = new Minim(this);
-  
+
   //Cargar sonidos para le sample
   //loadSample (nombreFichero, buffer)
   //En caso de que el sonido se escuche con alteraciones podemos aumentar el buffer
-  sampleZDo = minim.loadSample("do.wav",512);
+  sampleZDo = minim.loadSample("do.wav", 512);
   if ( sampleZDo == null ) println("No se ha cargado el sonido Do");
-  
-  sampleXRe = minim.loadSample("re.wav",512);
+
+  sampleXRe = minim.loadSample("re.wav", 512);
   if ( sampleXRe == null ) println("No se ha cargado el sonido Re");
-  
-  sampleCMi = minim.loadSample("mi.wav",512);
+
+  sampleCMi = minim.loadSample("mi.wav", 512);
   if ( sampleCMi == null ) println("No se ha cargado el sonido Mi");
-  
-  sampleVFa = minim.loadSample("fa.wav",512);
+
+  sampleVFa = minim.loadSample("fa.wav", 512);
   if ( sampleVFa == null ) println("No se ha cargado el sonido Fa");
-  
-  sampleBSol = minim.loadSample("sol.wav",512);
+
+  sampleBSol = minim.loadSample("sol.wav", 512);
   if ( sampleBSol == null ) println("No se ha cargado el sonido Sol");
-  
-  sampleNLa = minim.loadSample("la.wav",512);
+
+  sampleNLa = minim.loadSample("la.wav", 512);
   if ( sampleNLa == null ) println("No se ha cargado el sonido La");
-  
-  sampleMSi = minim.loadSample("si.wav",512);
+
+  sampleMSi = minim.loadSample("si.wav", 512);
   if ( sampleMSi == null ) println("No se ha cargado el sonido Si");
-
-
 }
 
 
@@ -98,11 +100,11 @@ void setup() {
 //Bucle principal
 //========================================================================================================
 void draw() {
-  
-  background(229,231,233);
-  stroke(52,50,48);
-  fill(52,50,48);
-  
+
+  background(229, 231, 233);
+  stroke(52, 50, 48);
+  fill(52, 50, 48);
+
   //Por cada use the mix buffer to draw the waveforms.
   for (int i = 0; i < sampleZDo.bufferSize() - 1; i++)
   {
@@ -119,22 +121,20 @@ void draw() {
     line(x1, 250 - sampleVFa.mix.get(i)*50, x2, 250 - sampleVFa.mix.get(i+1)*50);
     line(x1, 300 - sampleBSol.mix.get(i)*50, x2, 300 - sampleBSol.mix.get(i+1)*50);
     line(x1, 350 - sampleNLa.mix.get(i)*50, x2, 350 - sampleNLa.mix.get(i+1)*50);
-    line(x1, 400 - sampleMSi.mix.get(i)*50, x2, 400 - sampleMSi.mix.get(i+1)*50);    
+    line(x1, 400 - sampleMSi.mix.get(i)*50, x2, 400 - sampleMSi.mix.get(i+1)*50);
   }
-  
-  //Textos y logotipo
-  text("Creador: Pablo Pérez Sineiro", 10, height-100);
-  PImage logotipo = loadImage("logo_uoc.png");
-  image(logotipo,10,height-80, 198,70);
 
+  //Textos y logotipo
+  text("Creador: Pablo Pérez Sineiro", 10, height-107);
+  text("Email: pperezsi@uoc.edu", 10, height-90);
+  PImage logotipo = loadImage("logo_uoc.png");
+  image(logotipo, 10, height-80, 198, 70);
 }
 
 //========================================================================================================
 //Función detectar movimientos del ratón
 //========================================================================================================
 void mouseMoved() {
-
-
 }
 
 //========================================================================================================
