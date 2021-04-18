@@ -1,4 +1,5 @@
 /**
+ * Pregunta 03
  * Pablo Pérez Sineiro
  * 26/03/2021
  *
@@ -34,10 +35,21 @@
  *     de la UOC.
  * 
  * =======================================================================================================
- * DESCRIPCIÓN:
+ * DESCRIPCIÓN ESTRUCTURA GENERAL DEL CÓDIGO:
  * =======================================================================================================
+ * Siguiendo los ejemplos presentados en la unidad, para la realización del siguiente ejercicio se ha
+ * estructurado el código de la siguiente manera:
+ * 
+ * 1- Importar los paquetes necesarios, definición de variables y configuración general de la ventana.
+ * 2- Inicialización del motor minim así como la creación de un AudioSampler por cada uno de los ficheros de 
+      audio que se han de leer y disparar desde el directorio data.
+ * 3- Se parametriza la lectura del buffer a través de map y se dibujan las ondas para cada uno de los canales.
+ * 4- Se crea el texto y los elementor de interfaz adicionales.
+ * 5- El resto del código está orientado a crear las condiciones de pulsar alguna de
+ *    las teclas asignadas de forma que se disparen/reproduzcan los diferentes samplers asignados a cada
+ *    uno de los valores de la escala mayor.
  *
- *
+ * NOTA: En cada línea se especifica con mayor claridad la funcionalidad de cada apartado del código.
  *
  */
 
@@ -47,17 +59,18 @@
 import ddf.minim.*;
 import ddf.minim.ugens.*;
 
-//Definimos los objetos
-Minim minim;
-AudioSample sampleZDo;
-AudioSample sampleXRe;
-AudioSample sampleCMi;
-AudioSample sampleVFa;
-AudioSample sampleBSol;
-AudioSample sampleNLa;
-AudioSample sampleMSi;
-
-private PFont font;
+//========================================================================================================
+//Definición de variables
+//========================================================================================================
+Minim minim; //Objeto minim
+AudioSample sampleZDo; //Objeto para reproducir del sonido "Do"
+AudioSample sampleXRe; //Objeto para reproducir del sonido "Re"
+AudioSample sampleCMi; //Objeto para reproducir del sonido "Mi"
+AudioSample sampleVFa; //Objeto para reproducir del sonido "Fa"
+AudioSample sampleBSol; //Objeto para reproducir del sonido "Sol"
+AudioSample sampleNLa; //Objeto para reproducir del sonido "La"
+AudioSample sampleMSi; //Objeto para reproducir del sonido "Si"
+private PFont font;//Variable para definir la fuente de la interfaz
 
 
 //========================================================================================================
@@ -65,14 +78,19 @@ private PFont font;
 //========================================================================================================
 void setup() {
 
+  //Espeficiación de los parametros de la ventana, con Processing 3D
   size(1000, 600, P3D);
-  font = createFont("Poppins-Regular.ttf", 13);
-  textFont(font);
+  font = createFont("Poppins-Regular.ttf", 13);//Tipografía
+  textFont(font);//Asignación de la tipografía
+  
+  //Se inicializa el motor Minim
   minim = new Minim(this);
 
-  //Cargar sonidos para le sample
-  //loadSample (nombreFichero, buffer)
-  //En caso de que el sonido se escuche con alteraciones podemos aumentar el buffer
+  //Se cargan desde el directoria data del proyecto los sonidos para cada sample
+  //loadSample (nombreFichero, bufferLectura) - En caso de que el sonido se escuche 
+  //con alteraciones podemos aumentar el buffer
+  //Para cada sonido comprobamos que exista o se carge el fichero en caso 
+  //contrario se muestra un mensaje por consola
   sampleZDo = minim.loadSample("do.wav", 512);
   if ( sampleZDo == null ) println("No se ha cargado el sonido Do");
 
@@ -100,21 +118,23 @@ void setup() {
 //Bucle principal
 //========================================================================================================
 void draw() {
-
+  
+  //Color de fondo y color y grosor de las lineas
   background(229, 231, 233);
   stroke(52, 50, 48);
   fill(52, 50, 48);
 
-  //Por cada use the mix buffer to draw the waveforms.
+  //Se dibujan las formas de las ondas
+  //Por cada bit del mix buffer se especifica un valor de cordenadas a través del map para 
+  //posteriormente posicionar y dibujar la onda en la pantalla
   for (int i = 0; i < sampleZDo.bufferSize() - 1; i++)
   {
+    
+    //Se mapean los valores para las coordenadas
     float x1 = map(i, 0, sampleZDo.bufferSize(), 0, width);
     float x2 = map(i+1, 0, sampleZDo.bufferSize(), 0, width);
-    float x3 = map(i+2, 0, sampleZDo.bufferSize(), 0, width);
-    float x4 = map(i+3, 0, sampleZDo.bufferSize(), 0, width);
-    float x5 = map(i+4, 0, sampleZDo.bufferSize(), 0, width);
-    float x6 = map(i+5, 0, sampleZDo.bufferSize(), 0, width);
-    float x7 = map(i+6, 0, sampleZDo.bufferSize(), 0, width);
+    
+    //Se dibujan las ondas
     line(x1, 100 - sampleZDo.mix.get(i)*50, x2, 100 - sampleZDo.mix.get(i+1)*50);
     line(x1, 150 - sampleXRe.mix.get(i)*50, x2, 150 - sampleXRe.mix.get(i+1)*50);
     line(x1, 200 - sampleCMi.mix.get(i)*50, x2, 200 - sampleCMi.mix.get(i+1)*50);
@@ -124,24 +144,26 @@ void draw() {
     line(x1, 400 - sampleMSi.mix.get(i)*50, x2, 400 - sampleMSi.mix.get(i+1)*50);
   }
 
-  //Textos y logotipo
+  //Se crea el texto y se añade la imagen del logotipo que aparecen en la interfaz
   text("Creador: Pablo Pérez Sineiro", 10, height-107);
   text("Email: pperezsi@uoc.edu", 10, height-90);
+  text("Se han de pulsar las teclas 'z','x','c','v','b','n','m'; para hacer sonar cada nota de la escala mayor.", 10, height-134);
+  
+  //Se lee el fichero de imagen desde el directorio data del proyecto y se le 
+  //asigna una posición y tamaño en la ventana
   PImage logotipo = loadImage("logo_uoc.png");
   image(logotipo, 10, height-80, 198, 70);
 }
 
-//========================================================================================================
-//Función detectar movimientos del ratón
-//========================================================================================================
-void mouseMoved() {
-}
 
 //========================================================================================================
 //Función presionar teclas
 //========================================================================================================
 void keyPressed() 
 {
+  // Cada vez que se pulse una tecla sea mayusculas o miníscula 
+  // se comprueba que letra se ha pulsado y siempre que coincida con alguna de las 
+  // indicadas (sea mayúscula o minúscula) se disparara el sampler correspondiente.
   if ( key == 'z' || key == 'Z' ) sampleZDo.trigger();
   if ( key == 'x' || key == 'X' ) sampleXRe.trigger();
   if ( key == 'c' || key == 'C' ) sampleCMi.trigger();
